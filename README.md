@@ -41,7 +41,7 @@ ai-watermark-recovery/
 ├── Dockerfile                     # Multi-stage build (api + worker targets)
 ├── docker-compose.yml             # Postgres, Redis, API, Celery worker
 ├── alembic.ini                    # Alembic migration config
-├── .env.example                   # Environment variable template
+├── .env                      # Environment configuration (copy from .env.example and edit)
 │
 ├── backend/
 │   ├── app/
@@ -99,7 +99,7 @@ ai-watermark-recovery/
 ```bash
 git clone https://github.com/Hell-Phoenix/ai-watermark-recovery.git
 cd ai-watermark-recovery
-cp .env.example .env          # edit values as needed
+cp .env.example .env          # copy template and edit with Docker service names
 ```
 
 ### 2a. Run with Docker (recommended)
@@ -214,14 +214,14 @@ alembic upgrade head
 
 ## Environment Variables
 
-All settings are loaded from a `.env` file (see [.env.example](.env.example)). Key variables:
+All settings are loaded from a `.env` file. Key variables:
 
 | Variable | Default | Description |
 |---|---|---|
 | `DATABASE_URL` | `postgresql+asyncpg://…` | Async Postgres connection string |
-| `REDIS_URL` | `redis://localhost:6379/0` | Redis connection |
-| `CELERY_BROKER_URL` | `redis://localhost:6379/1` | Celery broker |
-| `CELERY_RESULT_BACKEND` | `redis://localhost:6379/2` | Celery result store |
+| `REDIS_URL` | `redis://redis:6379/0` | Redis connection (use `redis` service name in Docker) |
+| `CELERY_BROKER_URL` | `redis://redis:6379/1` | Celery broker (use `redis` service name in Docker) |
+| `CELERY_RESULT_BACKEND` | `redis://redis:6379/2` | Celery result store (use `redis` service name in Docker) |
 | `SECRET_KEY` | `CHANGE-ME-in-production` | JWT signing key |
 | `UPLOAD_DIR` | `./uploads` | Image upload directory |
 | `DEBUG` | `true` | Enable debug mode |

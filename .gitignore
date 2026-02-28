@@ -16,7 +16,6 @@ env/
 
 # Environment
 .env
-.env.example
 
 # Uploads & results
 uploads/
