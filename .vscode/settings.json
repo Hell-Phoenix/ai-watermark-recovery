@@ -1,0 +1,61 @@
+{
+  // ── Editor ──
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "editor.rulers": [100],
+
+  // ── Python ──
+  "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+
+  // ── Ruff (linter + formatter) ──
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "ruff.lint.args": ["--config=pyproject.toml"],
+  "ruff.format.args": ["--config=pyproject.toml"],
+
+  // ── MyPy ──
+  "mypy-type-checker.args": ["--config-file=pyproject.toml"],
+
+  // ── Testing ──
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"],
+
+  // ── File associations ──
+  "files.associations": {
+    "*.md": "markdown",
+    "Dockerfile*": "dockerfile"
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/*.egg-info": true,
+    ".mypy_cache": true,
+    ".ruff_cache": true
+  },
+
+  // ── GitHub Copilot ──
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "markdown": true,
+    "python": true,
+    "typescript": true,
+    "typescriptreact": true
+  },
+
+  // ── Docker ──
+  "docker.defaultRegistryPath": "ghcr.io/hell-phoenix",
+
+  // ── Search ──
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/uploads": true,
+    "**/.venv": true
+  }
+}

@@ -13,6 +13,7 @@ from backend.app.models.job import JobType
 class JobCreate(BaseModel):
     image_id: uuid.UUID
     job_type: JobType
+    payload_hex: str | None = None  # required for embed_watermark (up to 12 hex chars = 48 bits)
 
 
 class JobOut(BaseModel):

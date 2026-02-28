@@ -46,8 +46,11 @@ async def create_job(
     await db.flush()
     await db.refresh(job)
 
-    # Dispatch to Celery
-    result = task_fn.delay(str(job.id), image.filepath)
+    # Dispatch to Celery — embed tasks also receive the payload
+    if payload.job_type == JobType.EMBED_WATERMARK:
+        result = task_fn.delay(str(job.id), image.filepath, payload.payload_hex or "000000000000")
+    else:
+        result = task_fn.delay(str(job.id), image.filepath)
     job.celery_task_id = result.id
     await db.flush()
     await db.refresh(job)

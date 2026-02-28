@@ -1,0 +1,39 @@
+# See https://pre-commit.com for more information
+# Install: pip install pre-commit && pre-commit install
+repos:
+  # ── Ruff (lint + format, replaces black + isort + flake8) ──
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.6
+    hooks:
+      - id: ruff # linter
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi]
+      - id: ruff-format # formatter (black-compatible)
+        types_or: [python, pyi]
+
+  # ── MyPy (static type checking) ──
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic>=2.7
+          - pydantic-settings>=2.3
+          - sqlalchemy>=2.0
+          - types-redis
+        args: [--config-file=pyproject.toml]
+        pass_filenames: false
+
+  # ── General file hygiene ──
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--unsafe] # allow custom YAML tags in docker-compose
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: debug-statements
