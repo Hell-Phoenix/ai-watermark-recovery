@@ -168,30 +168,45 @@ class SwinTransformerBlock(nn.Module):
         shortcut = x
         x = self.norm1(x).view(B, H, W, C)
 
+        # Pad spatial dims to be divisible by window_size
+        ws = self.window_size
+        pad_b = (ws - H % ws) % ws
+        pad_r = (ws - W % ws) % ws
+        if pad_b > 0 or pad_r > 0:
+            x = F.pad(x, (0, 0, 0, pad_r, 0, pad_b))
+        Hp, Wp = H + pad_b, W + pad_r
+
+        # Clamp shift_size if window is larger than padded resolution
+        shift = self.shift_size if min(Hp, Wp) > ws else 0
+
         # Shifted-window: cyclic shift
-        if self.shift_size > 0:
-            shifted = torch.roll(x, shifts=(-self.shift_size, -self.shift_size), dims=(1, 2))
-            attn_mask = self._make_mask(H, W, x.device)
+        if shift > 0:
+            shifted = torch.roll(x, shifts=(-shift, -shift), dims=(1, 2))
+            attn_mask = self._make_mask(Hp, Wp, x.device)
         else:
             shifted = x
             attn_mask = None
 
         # Partition into windows
-        windows = _window_partition(shifted, self.window_size)  # (nW*B, ws, ws, C)
-        windows = windows.view(-1, self.window_size * self.window_size, C)
+        windows = _window_partition(shifted, ws)  # (nW*B, ws, ws, C)
+        windows = windows.view(-1, ws * ws, C)
 
         # W-MSA / SW-MSA
         attn_out = self.attn(windows, mask=attn_mask)
 
         # Reverse windows
-        attn_out = attn_out.view(-1, self.window_size, self.window_size, C)
-        shifted = _window_reverse(attn_out, self.window_size, H, W)
+        attn_out = attn_out.view(-1, ws, ws, C)
+        shifted = _window_reverse(attn_out, ws, Hp, Wp)
 
         # Reverse cyclic shift
-        if self.shift_size > 0:
-            x = torch.roll(shifted, shifts=(self.shift_size, self.shift_size), dims=(1, 2))
+        if shift > 0:
+            x = torch.roll(shifted, shifts=(shift, shift), dims=(1, 2))
         else:
             x = shifted
+
+        # Remove padding
+        if pad_b > 0 or pad_r > 0:
+            x = x[:, :H, :W, :].contiguous()
 
         x = x.view(B, H * W, C)
         x = shortcut + x
@@ -227,16 +242,23 @@ class PatchMerging(nn.Module):
     def forward(self, x: torch.Tensor, H: int, W: int) -> tuple[torch.Tensor, int, int]:
         B, _, C = x.shape
         x = x.view(B, H, W, C)
+        # Pad if H or W is odd (follows official Swin implementation)
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            x = F.pad(x, (0, 0, 0, pad_w, 0, pad_h))
         # Merge 2×2 patches
         x0 = x[:, 0::2, 0::2, :]
         x1 = x[:, 1::2, 0::2, :]
         x2 = x[:, 0::2, 1::2, :]
         x3 = x[:, 1::2, 1::2, :]
         x = torch.cat([x0, x1, x2, x3], dim=-1)  # (B, H/2, W/2, 4C)
+        new_H = (H + pad_h) // 2
+        new_W = (W + pad_w) // 2
         x = x.view(B, -1, 4 * C)
         x = self.norm(x)
         x = self.reduction(x)
-        return x, H // 2, W // 2
+        return x, new_H, new_W
 
 
 class SwinStage(nn.Module):

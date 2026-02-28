@@ -1,0 +1,147 @@
+/* ── GooeyNav — Particle-morphing navigation ── */
+
+.gooey-nav-container {
+  /* Particle palette — matches our design system accents */
+  --color-1: #6366f1; /* indigo */
+  --color-2: #06b6d4; /* cyan */
+  --color-3: #8b5cf6; /* violet */
+  --color-4: #10b981; /* emerald */
+
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── List reset ── */
+.gooey-nav-container nav ul {
+  list-style: none;
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(22, 22, 30, 0.6);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Links ── */
+.gooey-nav-container nav li {
+  position: relative;
+  z-index: 2;
+}
+
+.gooey-nav-container nav li a {
+  display: block;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #9090a8);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.gooey-nav-container nav li.active a {
+  color: #fff;
+}
+
+.gooey-nav-container nav li:not(.active) a:hover {
+  color: var(--text-primary, #f0f0f5);
+}
+
+/* ── Effect layers — absolutely positioned over the active item ── */
+.gooey-nav-container .effect {
+  position: absolute;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1;
+  transition:
+    left 0.85s var(--ease),
+    top 0.85s var(--ease),
+    width 0.85s var(--ease),
+    height 0.85s var(--ease);
+}
+
+/* Filter layer — holds particles + gooey backdrop */
+.gooey-nav-container .effect.filter {
+  background: var(
+    --gradient-primary,
+    linear-gradient(135deg, #6366f1, #06b6d4)
+  );
+  filter: url(#gooey-filter) blur(0px);
+  overflow: visible;
+}
+
+/* Text overlay so label renders crisply on top of the blurred filter */
+.gooey-nav-container .effect.text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  opacity: 0;
+  z-index: 3;
+}
+
+.gooey-nav-container .effect.text.active {
+  animation: gooey-text-pop var(--time, 600ms) var(--ease) forwards;
+}
+
+@keyframes gooey-text-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Particles ── */
+.gooey-nav-container .particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+}
+
+.gooey-nav-container .particle .point {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color, #fff);
+  transform: translate(-50%, -50%) translate(var(--start-x), var(--start-y))
+    scale(var(--scale, 1)) rotate(0deg);
+}
+
+.gooey-nav-container .effect.filter.active .particle .point {
+  animation: gooey-move var(--time, 600ms) var(--ease) forwards;
+}
+
+@keyframes gooey-move {
+  0% {
+    transform: translate(-50%, -50%) translate(var(--start-x), var(--start-y))
+      scale(var(--scale, 1)) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--end-x), var(--end-y))
+      scale(0) rotate(var(--rotate, 0deg));
+    opacity: 0;
+  }
+}
+
+/* ── Inline SVG filter (referenced via url(#gooey-filter)) ── */

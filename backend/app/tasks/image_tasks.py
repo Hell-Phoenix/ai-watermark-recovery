@@ -228,6 +228,79 @@ def recover_watermark(self: Task, job_id: str, image_path: str) -> dict:
     }
 
 
+@celery_app.task(bind=True, base=_BaseTask, name="tasks.detect_forgery")
+def detect_forgery(self: Task, job_id: str, image_path: str) -> dict:
+    """Detect whether an image has been forged or tampered with.
+
+    Pipeline: image → IGRM (restore) → compare original vs restored.
+    A large reconstruction residual indicates the image has been attacked;
+    a small residual means it is likely clean or only lightly compressed.
+
+    Returns a dict with ``forgery_detected`` (bool) and ``confidence`` (float).
+    """
+    _update_status(job_id, JobStatus.RUNNING)
+
+    from backend.ml.model_loader import get_decoder, get_igrm
+
+    igrm = get_igrm()
+    decoder = get_decoder()
+    image_t = _load_image_tensor(image_path)
+
+    with torch.no_grad():
+        restored = igrm(image_t)  # (1, 3, H, W)
+
+        # Measure reconstruction residual — high residual ≈ heavy attack
+        residual = (restored - image_t).abs()
+        residual_score = float(residual.mean())
+
+        # Extract watermark from both original and restored
+        logits_orig = decoder(image_t)    # (1, MESSAGE_LENGTH)
+        logits_rest = decoder(restored)   # (1, MESSAGE_LENGTH)
+
+        probs_orig = torch.sigmoid(logits_orig).squeeze(0)
+        probs_rest = torch.sigmoid(logits_rest).squeeze(0)
+
+        bits_orig = (probs_orig > 0.5).float()
+        bits_rest = (probs_rest > 0.5).float()
+
+        # Bit agreement between original and restored extractions
+        bit_agreement = float((bits_orig == bits_rest).float().mean())
+
+        # Confidence that forgery occurred:
+        #   high residual + low bit agreement → likely forged
+        #   low residual + high bit agreement → likely clean
+        # Normalise residual_score to [0, 1] with a sigmoid-like mapping
+        residual_confidence = 1.0 - (1.0 / (1.0 + 10.0 * residual_score))
+        disagreement_confidence = 1.0 - bit_agreement
+
+        # Weighted combination
+        confidence = 0.6 * residual_confidence + 0.4 * disagreement_confidence
+        forgery_detected = confidence > 0.5
+
+    # Persist metadata
+    meta = {
+        "forgery_detected": forgery_detected,
+        "confidence": round(confidence, 4),
+        "residual_score": round(residual_score, 6),
+        "bit_agreement": round(bit_agreement, 4),
+        "payload_hex_original": _bits_to_hex(bits_orig),
+        "payload_hex_restored": _bits_to_hex(bits_rest),
+    }
+    meta_path = _RESULTS_DIR / f"forgery_{uuid.uuid4().hex[:8]}.json"
+    meta_path.write_text(json.dumps(meta, indent=2))
+
+    _update_status(job_id, JobStatus.SUCCESS, result_path=str(meta_path))
+    logger.info(
+        "detect_forgery complete — forgery=%s confidence=%.4f",
+        forgery_detected, confidence,
+    )
+    return {
+        "job_id": job_id,
+        "forgery_detected": forgery_detected,
+        "confidence": confidence,
+    }
+
+
 # --------------- helpers ---------------
 
 

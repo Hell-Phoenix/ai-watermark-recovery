@@ -39,6 +39,10 @@ dependencies = [
     "python-jose[cryptography]>=3.3,<4",
     "passlib[bcrypt]>=1.7,<2",
     "bcrypt>=4.1,<5",
+    "cryptography>=42.0,<44",    # ECDSA signing for MetaSeal
+
+    # --- Error correction ---
+    "reedsolo>=1.7,<2",
 
     # --- Settings & utilities ---
     "pydantic[email]>=2.7,<3",

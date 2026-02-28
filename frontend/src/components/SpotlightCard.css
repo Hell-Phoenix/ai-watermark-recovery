@@ -1,0 +1,44 @@
+.card-spotlight {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  transition:
+    transform 0.4s var(--ease-out-expo),
+    border-color 0.4s ease;
+}
+
+/* spotlight radial glow that follows the mouse */
+.card-spotlight::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--spotlight-color, rgba(99, 102, 241, 0.45)),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.card-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* subtle border highlight on hover */
+.card-spotlight:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+/* ensure children sit above the spotlight glow */
+.card-spotlight > * {
+  position: relative;
+  z-index: 2;
+}

@@ -27,7 +27,10 @@ def make_celery() -> Celery:
         task_acks_late=True,
         worker_prefetch_multiplier=1,
         # Auto-discover tasks inside backend.app.tasks
-        imports=["backend.app.tasks.image_tasks"],
+        imports=[
+            "backend.app.tasks.image_tasks",
+            "backend.app.tasks.pipeline_tasks",
+        ],
     )
 
     return celery_app

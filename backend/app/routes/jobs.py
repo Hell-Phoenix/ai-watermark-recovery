@@ -16,6 +16,7 @@ from backend.app.tasks.image_tasks import (
     embed_watermark,
     extract_watermark,
     recover_watermark,
+    detect_forgery,
 )
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -24,6 +25,7 @@ _TASK_MAP = {
     JobType.EMBED_WATERMARK: embed_watermark,
     JobType.EXTRACT_WATERMARK: extract_watermark,
     JobType.RECOVER_WATERMARK: recover_watermark,
+    JobType.DETECT_FORGERY: detect_forgery,
 }
 
 
