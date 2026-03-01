@@ -33,6 +33,7 @@ from backend.app.schemas.detection import (
     JobStatusResponse,
 )
 from httpx import ASGITransport, AsyncClient
+from pydantic import ValidationError
 
 
 class TestAttackTypeEnum:
@@ -62,7 +63,7 @@ class TestEmbedRequest:
         assert r.sign is True
 
     def test_hex_validation_rejects_non_hex(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             EmbedRequest(image_id=uuid.uuid4(), payload_hex="xyz123")
 
     def test_hex_max_length(self) -> None:
@@ -71,7 +72,7 @@ class TestEmbedRequest:
         assert len(r.payload_hex) == 12
 
     def test_hex_too_long(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             EmbedRequest(image_id=uuid.uuid4(), payload_hex="a" * 13)
 
 
@@ -137,7 +138,7 @@ class TestDetectResult:
         assert r.ecdsa_valid is None
 
     def test_confidence_bounds(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             DetectResult(
                 payload="00", confidence=1.5,
                 latent_layer_intact=True, pixel_layer_intact=True,
