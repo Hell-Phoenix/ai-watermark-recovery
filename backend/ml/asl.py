@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
-from typing import Sequence
 
 import torch
 import torch.nn as nn
@@ -34,7 +33,6 @@ import torch.nn.functional as F
 
 from backend.ml.jsnet import DifferentiableJPEG
 from backend.ml.stn_crop import DifferentiableCrop, GeometricDistortion
-
 
 # ────────────────────────────────────────────────────────────
 # Attack-parameter ranges (easy → hard, interpolated by severity)

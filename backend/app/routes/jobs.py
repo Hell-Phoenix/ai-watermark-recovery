@@ -13,10 +13,10 @@ from backend.app.models.image import Image
 from backend.app.models.job import Job, JobType
 from backend.app.schemas.job import JobCreate, JobOut
 from backend.app.tasks.image_tasks import (
+    detect_forgery,
     embed_watermark,
     extract_watermark,
     recover_watermark,
-    detect_forgery,
 )
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])

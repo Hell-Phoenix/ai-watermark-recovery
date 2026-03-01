@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 _lock = Lock()
-_encoder: "torch.nn.Module | None" = None
-_decoder: "torch.nn.Module | None" = None
-_igrm: "torch.nn.Module | None" = None
+_encoder: torch.nn.Module | None = None
+_decoder: torch.nn.Module | None = None
+_igrm: torch.nn.Module | None = None
 
 WEIGHTS_DIR = Path(settings.upload_dir) / "weights"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

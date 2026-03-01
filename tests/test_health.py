@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 from backend.app.main import app
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.asyncio

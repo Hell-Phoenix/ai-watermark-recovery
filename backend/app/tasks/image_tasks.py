@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import torch
@@ -89,7 +89,7 @@ class _BaseTask(Task):
 
     abstract = True
 
-    def on_failure(self, exc, task_id, args, kwargs, einfo):  # noqa: ANN001
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
         job_id: str | None = kwargs.get("job_id") or (args[0] if args else None)
         if job_id:
             with _get_sync_session() as session:
@@ -97,7 +97,7 @@ class _BaseTask(Task):
                 if job:
                     job.status = JobStatus.FAILURE
                     job.error_message = str(exc)
-                    job.finished_at = datetime.now(timezone.utc)
+                    job.finished_at = datetime.now(UTC)
                     session.commit()
         logger.exception("Task %s failed", task_id)
 
@@ -317,5 +317,5 @@ def _update_status(
             if result_path:
                 job.result_path = result_path
             if status in {JobStatus.SUCCESS, JobStatus.FAILURE}:
-                job.finished_at = datetime.now(timezone.utc)
+                job.finished_at = datetime.now(UTC)
             session.commit()

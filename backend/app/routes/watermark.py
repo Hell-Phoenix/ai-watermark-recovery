@@ -9,7 +9,6 @@ Endpoints:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import uuid
 
@@ -17,10 +16,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.core.auth import require_auth, rate_limit
+from backend.app.core.auth import rate_limit, require_auth
 from backend.app.core.database import get_db
 from backend.app.models.image import Image
-from backend.app.models.job import Job, JobType, JobStatus
+from backend.app.models.job import Job, JobStatus, JobType
 from backend.app.models.user import User
 from backend.app.schemas.detection import (
     AuditEntry,
@@ -33,7 +32,7 @@ from backend.app.schemas.detection import (
     EmbedResult,
     JobStatusResponse,
 )
-from backend.app.tasks.pipeline_tasks import pipeline_embed, pipeline_detect
+from backend.app.tasks.pipeline_tasks import pipeline_detect, pipeline_embed
 
 router = APIRouter(tags=["watermark"])
 

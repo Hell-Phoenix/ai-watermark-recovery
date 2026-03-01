@@ -5,20 +5,19 @@ Covers latent_embed, pixel_embed, iiwn, adn, crypto, and discrepancy modules.
 
 from __future__ import annotations
 
-import torch
 import pytest
+import torch
 
 # ---------------------------------------------------------------------------
 # Latent embedding (WIND-style)
 # ---------------------------------------------------------------------------
-
 from backend.ml.latent_embed import (
     FourierPatternGenerator,
     LatentWatermarkConfig,
     LatentWatermarkDetector,
     LatentWatermarkEmbedder,
-    ks_test_gaussianity,
     _user_id_to_bits,
+    ks_test_gaussianity,
 )
 
 
@@ -220,7 +219,7 @@ class TestPixelWatermarkLoss:
 # Integer Invertible Watermark Network
 # ---------------------------------------------------------------------------
 
-from backend.ml.iiwn import IntegerInvertibleWatermarkNetwork, IIWNLoss
+from backend.ml.iiwn import IIWNLoss, IntegerInvertibleWatermarkNetwork
 
 
 class TestIIWN:
@@ -296,7 +295,7 @@ class TestIIWNLoss:
 # Attention Decoding Network
 # ---------------------------------------------------------------------------
 
-from backend.ml.adn import AttentionDecodingNetwork, ADNLoss
+from backend.ml.adn import ADNLoss, AttentionDecodingNetwork
 
 
 class TestADN:
@@ -339,10 +338,10 @@ class TestADNLoss:
 
 from backend.ml.crypto import (
     HammingInterleavedCodec,
-    encode_payload,
-    decode_payload,
-    hex_to_bits,
     bits_to_hex,
+    decode_payload,
+    encode_payload,
+    hex_to_bits,
 )
 
 
@@ -401,11 +400,9 @@ class TestCrypto:
 
 from backend.ml.discrepancy import (
     AttackType,
-    DiscrepancyConfig,
-    RuleBasedDiscrepancy,
-    LearnedDiscrepancy,
     DiscrepancyLoss,
-    DualDomainDetector,
+    LearnedDiscrepancy,
+    RuleBasedDiscrepancy,
     build_feature_vector,
 )
 

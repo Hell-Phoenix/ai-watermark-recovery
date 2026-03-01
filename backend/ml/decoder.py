@@ -20,13 +20,9 @@ References:
 
 from __future__ import annotations
 
-import math
-from typing import Optional
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -100,7 +96,7 @@ class WindowAttention(nn.Module):
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.proj = nn.Linear(dim, dim)
 
-    def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, mask: torch.Tensor | None = None) -> torch.Tensor:
         """
         Parameters
         ----------

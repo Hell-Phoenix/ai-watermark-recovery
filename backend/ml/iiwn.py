@@ -29,12 +29,9 @@ References:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 # ---------------------------------------------------------------------------
 # Scale / translate prediction network (with FiLM conditioning)

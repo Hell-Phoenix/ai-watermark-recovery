@@ -21,12 +21,11 @@ All losses accept (B, …) tensors and return a scalar.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 # ---------------------------------------------------------------------------
 # Perceptual loss (lightweight, no external VGG dependency)

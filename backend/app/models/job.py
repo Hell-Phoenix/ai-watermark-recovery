@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
@@ -39,7 +39,7 @@ class Job(Base):
     result_path: Mapped[str | None] = mapped_column(Text)
     error_message: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
@@ -47,7 +47,7 @@ class Job(Base):
     image_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("images.id", ondelete="CASCADE"), nullable=False
     )
-    image: Mapped["Image"] = relationship(back_populates="jobs")  # noqa: F821
+    image: Mapped[Image] = relationship(back_populates="jobs")  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<Job {self.id} type={self.job_type} status={self.status}>"
