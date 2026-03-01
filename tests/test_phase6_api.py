@@ -10,20 +10,16 @@ Tests are organised into:
 from __future__ import annotations
 
 import json
-import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import AsyncGenerator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-from httpx import ASGITransport, AsyncClient
 
 # ---------------------------------------------------------------------------
 # Pydantic schema tests (no network / DB required)
 # ---------------------------------------------------------------------------
-
 from backend.app.schemas.detection import (
     AttackType,
     AuditEntry,
@@ -36,6 +32,7 @@ from backend.app.schemas.detection import (
     EmbedResult,
     JobStatusResponse,
 )
+from httpx import ASGITransport, AsyncClient
 
 
 class TestAttackTypeEnum:
@@ -180,7 +177,7 @@ class TestJobStatusResponse:
             id=uuid.uuid4(),
             job_type="embed_watermark",
             status="success",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
             result=embed,
         )
         assert r.result is not None
@@ -191,7 +188,7 @@ class TestJobStatusResponse:
             id=uuid.uuid4(),
             job_type="extract_watermark",
             status="pending",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         assert r.result is None
 
@@ -203,7 +200,7 @@ class TestAuditResponse:
                 job_id=uuid.uuid4(),
                 job_type="embed_watermark",
                 status="success",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         ]
         r = AuditResponse(image_hash="abc123", entries=entries)
@@ -258,12 +255,12 @@ class TestJWT:
 # We mock the DB dependency and auth dependency so we don't need a real
 # PostgreSQL instance for unit tests.
 
-from backend.app.main import app
-from backend.app.core.database import get_db
 from backend.app.core.auth import require_auth
-from backend.app.models.user import User
+from backend.app.core.database import get_db
+from backend.app.main import app
 from backend.app.models.image import Image
 from backend.app.models.job import Job, JobStatus, JobType
+from backend.app.models.user import User
 
 _TEST_USER_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 _TEST_IMAGE_ID = uuid.UUID("22222222-2222-2222-2222-222222222222")
@@ -295,7 +292,7 @@ def _make_fake_job(
     job.status = status
     job.celery_task_id = "celery-task-id-123"
     job.image_id = _TEST_IMAGE_ID
-    job.created_at = datetime.now(timezone.utc)
+    job.created_at = datetime.now(UTC)
     job.finished_at = None
     job.error_message = None
     job.result_path = result_path
@@ -318,25 +315,25 @@ class _MockDBSession:
     async def get(self, model_class: type, pk: uuid.UUID) -> object | None:
         return self._store.get((model_class, pk))
 
-    async def execute(self, stmt):  # noqa: ANN001
+    async def execute(self, stmt):
         """Return a minimal result proxy for SELECT queries."""
         mock_result = MagicMock()
         mock_result.scalars.return_value.all.return_value = []
         mock_result.scalars.return_value.first.return_value = None
         return mock_result
 
-    def add(self, obj):  # noqa: ANN001
+    def add(self, obj):
         pass
 
     async def flush(self) -> None:
         pass
 
-    async def refresh(self, obj) -> None:  # noqa: ANN001
+    async def refresh(self, obj) -> None:
         # Give the job a UUID so the response is valid
         if hasattr(obj, "id") and obj.id is None:
             obj.id = uuid.uuid4()
         if hasattr(obj, "created_at") and obj.created_at is None:
-            obj.created_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
         if hasattr(obj, "is_active") and obj.is_active is None:
             obj.is_active = True
 
@@ -351,7 +348,7 @@ _mock_db = _MockDBSession()
 _mock_db.add_entity(Image, _TEST_IMAGE_ID, _make_fake_image())
 
 
-async def _override_db():  # noqa: ANN202
+async def _override_db():
     yield _mock_db
 
 
@@ -727,8 +724,8 @@ class TestRateLimitFactory:
 
 from backend.app.tasks.pipeline_tasks import (
     _bits_to_hex,
-    _hex_to_bits,
     _compute_psnr,
+    _hex_to_bits,
 )
 
 
@@ -739,7 +736,6 @@ class TestTaskHelpers:
         assert bits.shape == (1, 48)
 
     def test_bits_to_hex_roundtrip(self) -> None:
-        import torch
         # 48 bits → hex → bits
         original_hex = "abcdef123456"
         with patch("backend.ml.model_loader.DEVICE", new="cpu"):

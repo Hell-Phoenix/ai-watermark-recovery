@@ -26,12 +26,10 @@ Reference
 from __future__ import annotations
 
 import math
-from typing import Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 # ────────────────────────────────────────────────────────────
 # Differentiable crop via affine grid_sample
@@ -61,7 +59,7 @@ class DifferentiableCrop(nn.Module):
         self,
         min_ratio: float = 0.05,
         max_ratio: float = 1.0,
-        output_size: Tuple[int, int] | None = None,
+        output_size: tuple[int, int] | None = None,
     ) -> None:
         super().__init__()
         self.min_ratio = min_ratio
@@ -141,7 +139,7 @@ class GeometricDistortion(nn.Module):
     def __init__(
         self,
         max_angle: float = 30.0,
-        scale_range: Tuple[float, float] = (0.8, 1.2),
+        scale_range: tuple[float, float] = (0.8, 1.2),
         max_shear: float = 0.2,
     ) -> None:
         super().__init__()

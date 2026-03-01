@@ -6,14 +6,13 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import async_engine_from_config
-
 from backend.app.core.config import get_settings
 from backend.app.core.database import Base
 
 # Import all models so Alembic can detect them
 from backend.app.models import Image, Job, User  # noqa: F401
+from sqlalchemy import pool
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
 settings = get_settings()
 config = context.config
@@ -36,7 +35,7 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection):  # noqa: ANN001
+def do_run_migrations(connection):
     context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
         context.run_migrations()

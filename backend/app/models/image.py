@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -23,17 +23,17 @@ class Image(Base):
     content_type: Mapped[str | None] = mapped_column(String(100))
     file_size: Mapped[int | None] = mapped_column()
     uploaded_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
 
     # FK → users
     owner_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    owner: Mapped["User"] = relationship(back_populates="images")  # noqa: F821
+    owner: Mapped[User] = relationship(back_populates="images")  # noqa: F821
 
     # One image can have many processing jobs
-    jobs: Mapped[list["Job"]] = relationship(  # noqa: F821
+    jobs: Mapped[list[Job]] = relationship(  # noqa: F821
         back_populates="image", cascade="all, delete-orphan"
     )
 
