@@ -26,16 +26,13 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from typing import Optional
 
 import torch
 import torch.nn.functional as F
-
-from cryptography.hazmat.primitives.asymmetric import ec, utils
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.backends import default_backend
 from cryptography.exceptions import InvalidSignature
-
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, utils
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -140,7 +137,7 @@ class ECDSAKeyPair:
         cls,
         pem_data: bytes,
         config: ECDSAConfig | None = None,
-    ) -> "ECDSAKeyPair":
+    ) -> ECDSAKeyPair:
         """Load key pair from PEM-encoded private key."""
         private_key = serialization.load_pem_private_key(
             pem_data, password=None, backend=default_backend(),

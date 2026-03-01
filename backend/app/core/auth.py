@@ -20,7 +20,7 @@ Usage in a route::
 from __future__ import annotations
 
 import time
-from typing import Callable
+from collections.abc import Callable
 
 import redis.asyncio as aioredis
 from fastapi import Depends, HTTPException, Request, status

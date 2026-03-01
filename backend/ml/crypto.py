@@ -39,12 +39,12 @@ References:
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
 try:
-    from reedsolo import RSCodec, ReedSolomonError
+    from reedsolo import ReedSolomonError, RSCodec
 except ImportError:
     RSCodec = None  # type: ignore[assignment,misc]
     ReedSolomonError = Exception  # type: ignore[assignment,misc]
@@ -266,7 +266,7 @@ def deinterleave(bits: np.ndarray, num_blocks: int = NUM_INTERLEAVE_BLOCKS) -> n
 # Reed-Solomon outer code (byte-level)
 # ============================================================================
 
-def _get_rs_codec() -> "RSCodec":
+def _get_rs_codec() -> RSCodec:
     """Lazy-initialise the RS codec."""
     if RSCodec is None:
         raise ImportError(
@@ -290,7 +290,7 @@ def _rs_encode(data_bytes: bytes) -> bytes:
 def _rs_decode(received_bytes: bytes) -> bytes:
     """Reed-Solomon decode 32 bytes → 6 data bytes (with error correction)."""
     codec = _get_rs_codec()
-    decoded_msg, decoded_msgecc, errata_pos = codec.decode(received_bytes)
+    decoded_msg, _, _ = codec.decode(received_bytes)
     return bytes(decoded_msg)
 
 

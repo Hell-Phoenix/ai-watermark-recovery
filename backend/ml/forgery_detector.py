@@ -28,12 +28,10 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 import torch
 import torch.nn as nn
 
-from backend.ml.perceptual_hash import DINOv2PerceptualHasher, PerceptualHashConfig
 from backend.ml.ecdsa_signer import (
     ECDSAConfig,
     ECDSAKeyPair,
@@ -41,9 +39,8 @@ from backend.ml.ecdsa_signer import (
     ECDSAVerifier,
     bits_to_signature,
     signature_to_bits,
-    _embedding_to_digest,
 )
-
+from backend.ml.perceptual_hash import DINOv2PerceptualHasher, PerceptualHashConfig
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -140,8 +137,8 @@ class ForgeryDetector(nn.Module):
         self,
         image: torch.Tensor,
         signature: bytes,
-        public_key: "ec.EllipticCurvePublicKey",  # type: ignore[name-defined]
-        reference_hash: Optional[torch.Tensor] = None,
+        public_key: ec.EllipticCurvePublicKey,  # type: ignore[name-defined]
+        reference_hash: torch.Tensor | None = None,
     ) -> ForgeryResult:
         """Detect whether the watermark in *image* was transplanted.
 
@@ -215,8 +212,8 @@ class ForgeryDetector(nn.Module):
         self,
         image: torch.Tensor,
         signature_bits: torch.Tensor,
-        public_key: "ec.EllipticCurvePublicKey",  # type: ignore[name-defined]
-        reference_hash: Optional[torch.Tensor] = None,
+        public_key: ec.EllipticCurvePublicKey,  # type: ignore[name-defined]
+        reference_hash: torch.Tensor | None = None,
     ) -> ForgeryResult:
         """Same as :meth:`detect` but accepts signature as binary tensor.
 
@@ -238,7 +235,7 @@ class ForgeryDetector(nn.Module):
         self,
         image: torch.Tensor,
         signature_bits: torch.Tensor,
-        public_key: "ec.EllipticCurvePublicKey",  # type: ignore[name-defined]
+        public_key: ec.EllipticCurvePublicKey,  # type: ignore[name-defined]
     ) -> dict[str, object]:
         """Forward pass returning a dict (for integration with pipelines).
 
@@ -330,7 +327,7 @@ class MetaSealPipeline:
         self,
         image: torch.Tensor,
         signature: bytes,
-        reference_hash: Optional[torch.Tensor] = None,
+        reference_hash: torch.Tensor | None = None,
     ) -> ForgeryResult:
         """Verify an image against an extracted signature.
 
@@ -353,7 +350,7 @@ class MetaSealPipeline:
         self,
         image: torch.Tensor,
         signature_bits: torch.Tensor,
-        reference_hash: Optional[torch.Tensor] = None,
+        reference_hash: torch.Tensor | None = None,
     ) -> ForgeryResult:
         """Verify using a binary signature tensor."""
         return self.detector.detect_from_bits(

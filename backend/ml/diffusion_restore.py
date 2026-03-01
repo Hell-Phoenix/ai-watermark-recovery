@@ -35,8 +35,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from backend.ml.unet_restore import ConditionalRestorationUNet, sinusoidal_embedding
-
+from backend.ml.unet_restore import ConditionalRestorationUNet
 
 # ---------------------------------------------------------------------------
 # Noise schedule helpers

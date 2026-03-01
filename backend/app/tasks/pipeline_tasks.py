@@ -19,16 +19,16 @@ import io
 import json
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import torch
 from celery import Task
 from PIL import Image as PILImage
-from torchvision import transforms
-from torchvision.utils import save_image
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from torchvision import transforms
+from torchvision.utils import save_image
 
 from backend.app.core.config import get_settings
 from backend.app.models.job import Job, JobStatus
@@ -105,7 +105,7 @@ def _compute_psnr(original: torch.Tensor, reconstructed: torch.Tensor) -> float:
 class _BaseTask(Task):
     abstract = True
 
-    def on_failure(self, exc, task_id, args, kwargs, einfo):  # noqa: ANN001
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
         job_id: str | None = kwargs.get("job_id") or (args[0] if args else None)
         if job_id:
             with _get_sync_session() as session:
@@ -113,7 +113,7 @@ class _BaseTask(Task):
                 if job:
                     job.status = JobStatus.FAILURE
                     job.error_message = str(exc)
-                    job.finished_at = datetime.now(timezone.utc)
+                    job.finished_at = datetime.now(UTC)
                     session.commit()
         logger.exception("Task %s failed", task_id)
 
@@ -131,7 +131,7 @@ def _update_status(
             if result_path:
                 job.result_path = result_path
             if status in {JobStatus.SUCCESS, JobStatus.FAILURE}:
-                job.finished_at = datetime.now(timezone.utc)
+                job.finished_at = datetime.now(UTC)
             session.commit()
 
 
@@ -172,8 +172,8 @@ def pipeline_embed(
     signature_hex: str | None = None
     if sign:
         try:
-            from backend.ml.perceptual_hash import DINOv2PerceptualHasher, PerceptualHashConfig
             from backend.ml.ecdsa_signer import ECDSAKeyPair, ECDSASigner, signature_to_hex
+            from backend.ml.perceptual_hash import DINOv2PerceptualHasher, PerceptualHashConfig
 
             hasher = DINOv2PerceptualHasher(PerceptualHashConfig(use_torch_hub=False))
             hasher.eval()
@@ -255,8 +255,8 @@ def pipeline_detect(
         attack_type = "CLEAN"
         try:
             from backend.ml.discrepancy import (
-                DualLayerDiscrepancyDetector,
                 DualLayerDiscrepancyConfig,
+                DualLayerDiscrepancyDetector,
             )
             disc_cfg = DualLayerDiscrepancyConfig()
             disc = DualLayerDiscrepancyDetector(disc_cfg)
@@ -289,7 +289,6 @@ def pipeline_detect(
                     DINOv2PerceptualHasher,
                     PerceptualHashConfig,
                 )
-                from backend.ml.ecdsa_signer import ECDSAVerifier, ECDSAKeyPair
 
                 hasher = DINOv2PerceptualHasher(PerceptualHashConfig(use_torch_hub=False))
                 hasher.eval()

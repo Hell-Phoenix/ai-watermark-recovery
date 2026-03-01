@@ -8,8 +8,8 @@ Covers:
 
 from __future__ import annotations
 
-import torch
 import pytest
+import torch
 
 # =====================================================================
 # Helpers
@@ -144,11 +144,11 @@ from backend.ml.ecdsa_signer import (
     ECDSAKeyPair,
     ECDSASigner,
     ECDSAVerifier,
-    signature_to_bits,
-    bits_to_signature,
-    signature_to_hex,
-    hex_to_signature,
     _embedding_to_digest,
+    bits_to_signature,
+    hex_to_signature,
+    signature_to_bits,
+    signature_to_hex,
 )
 
 

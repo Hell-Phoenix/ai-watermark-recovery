@@ -7,11 +7,10 @@ and achieves a Bit Error Rate below 0.3 at JPEG quality factor 30.
 
 from __future__ import annotations
 
-import torch
 import pytest
-
-from backend.ml.encoder import HiDDeNEncoder
+import torch
 from backend.ml.decoder import SwinWatermarkDecoder
+from backend.ml.encoder import HiDDeNEncoder
 from backend.ml.jsnet import DifferentiableJPEG
 
 MESSAGE_LENGTH = 48
@@ -125,11 +124,11 @@ class TestEndToEndPipeline:
             ber = (predicted_bits != message).float().mean().item()
 
         print(f"\n{'='*50}")
-        print(f"  Watermark Pipeline Sanity Test")
+        print("  Watermark Pipeline Sanity Test")
         print(f"{'='*50}")
         print(f"  Cover shape:       {tuple(cover.shape)}")
         print(f"  Message bits:      {MESSAGE_LENGTH}")
-        print(f"  JPEG QF:           30")
+        print("  JPEG QF:           30")
         print(f"  Bit Error Rate:    {ber:.4f}")
         print(f"  Result:            {'PASS' if ber < 0.3 else 'FAIL'}")
         print(f"{'='*50}")

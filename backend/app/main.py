@@ -7,10 +7,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
 
 from backend.app.core.config import get_settings
-from backend.app.core.database import engine, Base, async_session_factory
+from backend.app.core.database import Base, async_session_factory, engine
 from backend.app.models.user import User
 from backend.app.routes import auth, health, images, jobs, watermark
 
@@ -20,7 +19,7 @@ _PLACEHOLDER_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000000")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa: ANN001
+async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle hook."""
     # Create tables if they don't exist (for local dev; use Alembic in prod)
     async with engine.begin() as conn:
