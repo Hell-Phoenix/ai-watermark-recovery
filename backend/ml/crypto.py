@@ -290,7 +290,7 @@ def _rs_encode(data_bytes: bytes) -> bytes:
 def _rs_decode(received_bytes: bytes) -> bytes:
     """Reed-Solomon decode 32 bytes → 6 data bytes (with error correction)."""
     codec = _get_rs_codec()
-    decoded_msg, decoded_msgecc, errata_pos = codec.decode(received_bytes)
+    decoded_msg, _, _ = codec.decode(received_bytes)
     return bytes(decoded_msg)
 
 
